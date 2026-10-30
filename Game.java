@@ -15,8 +15,8 @@ enum Platform {
     XBOX_SERIES,
     XBOX_ONE,
     XBOX_RETRO,
-    OTHER
-}
+    OTHER 
+} // admin mode wo man mehr einfügen kann
 
 enum DistributionType {
     PHYSICAL,

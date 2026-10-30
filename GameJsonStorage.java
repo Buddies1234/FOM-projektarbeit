@@ -109,19 +109,74 @@ public class GameJsonStorage {
             if (map.get("completionDate") != null) {
                 g.setCompletionDate(LocalDate.parse(map.get("completionDate")));
             }
-            if (map.containsKey("genres") && !map.get("genres").isEmpty()) {
-                String[] items = map.get("genres").split(",");
-                List<String> list = new ArrayList<>();
-                for (String it : items) {
-                    list.add(it.trim());
-                }
-                g.setGenres(list);
-            }
+            g.setGenres(parseStringArray(raw, "genres"));
 
             games.add(g);
         }
 
         return games;
+    }
+
+    private List<String> parseStringArray(String object, String key) throws IOException {
+        List<String> values = new ArrayList<>();
+        String field = "\"" + key + "\"";
+        int fieldIndex = object.indexOf(field);
+        if (fieldIndex == -1) {
+            return values;
+        }
+
+        int arrayStart = object.indexOf('[', fieldIndex + field.length());
+        if (arrayStart == -1) {
+            return values;
+        }
+
+        int index = arrayStart + 1;
+        while (index < object.length()) {
+            char current = object.charAt(index);
+            if (Character.isWhitespace(current) || current == ',') {
+                index++;
+                continue;
+            }
+            if (current == ']') {
+                return values;
+            }
+            if (current != '"') {
+                throw new IOException("Ungültiges JSON-Array für '" + key + "'.");
+            }
+
+            StringBuilder value = new StringBuilder();
+            index++;
+            boolean escaped = false;
+            boolean closed = false;
+            while (index < object.length()) {
+                current = object.charAt(index++);
+                if (escaped) {
+                    value.append('\\').append(current);
+                    escaped = false;
+                } else if (current == '\\') {
+                    escaped = true;
+                } else if (current == '"') {
+                    closed = true;
+                    break;
+                } else {
+                    value.append(current);
+                }
+            }
+
+            if (!closed || escaped) {
+                throw new IOException("Unvollständiger JSON-Text in '" + key + "'.");
+            }
+            values.add(unescapeJson(value.toString()));
+        }
+
+        throw new IOException("Nicht geschlossenes JSON-Array für '" + key + "'.");
+    }
+
+    private String unescapeJson(String value) {
+        return value.replace("\\\"", "\"")
+                .replace("\\n", "\n")
+                .replace("\\r", "\r")
+                .replace("\\\\", "\\");
     }
 
     private void appendField(StringBuilder sb, String key, String value, boolean trailingComma) {
