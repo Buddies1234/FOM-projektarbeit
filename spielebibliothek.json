@@ -1,0 +1,89 @@
+[
+  {
+    "title": "The Witcher 3: Wild Hunt",
+    "developer": "CD Projekt Red",
+    "releaseYear": 2015,
+    "genres": ["RPG", "Open World"],
+    "series": null,
+    "platform": "PLAYSTATION_4",
+    "distributionType": "PHYSICAL",
+    "storefront": "NONE",
+    "condition": "COMPLETE_IN_BOX",
+    "status": "COMPLETED_100",
+    "completionDate": "2021-05-14",
+    "rating": 10,
+    "notes": "Platin-Trophäe geholt. Grandioses DLC Blood and Wine."
+  },
+  {
+    "title": "Baldur's Gate 3",
+    "developer": "Larian Studios",
+    "releaseYear": 2023,
+    "genres": ["CRPG", "Turn-Based"],
+    "series": null,
+    "platform": "PC",
+    "distributionType": "DIGITAL",
+    "storefront": "STEAM",
+    "condition": "NOT_APPLICABLE",
+    "status": "PLAYING",
+    "completionDate": null,
+    "rating": 9,
+    "notes": "Akt 3 erreicht mit Paladin-Build."
+  },
+  {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0123456789ab",
+    "title": "The Legend of Zelda: Ocarina of Time",
+    "developer": "Nintendo EAD",
+    "releaseYear": 1998,
+    "genres": [
+      "Action-Adventure",
+      "Fantasy"
+    ],
+    "series": "The Legend of Zelda",
+    "platform": "NINTENDO_RETRO",
+    "distributionType": "PHYSICAL",
+    "storefront": "NONE",
+    "condition": "COMPLETE_IN_BOX",
+    "status": "COMPLETED_100",
+    "completionDate": "2020-08-15",
+    "rating": 10,
+    "notes": "Alle 100 Goldenen Skulltulas und Herzteile gesammelt. Absoluter Meilenstein."
+  },
+  {
+    "id": "b2c3d4e5-f6a7-4b8c-9d0e-123456789abc",
+    "title": "Tekken 3",
+    "developer": "Namco",
+    "releaseYear": 1998,
+    "genres": [
+      "Fighting",
+      "Beat 'em up"
+    ],
+    "series": "Tekken",
+    "platform": "PLAYSTATION_RETRO",
+    "distributionType": "PHYSICAL",
+    "storefront": "NONE",
+    "condition": "GOOD",
+    "status": "BEATEN",
+    "completionDate": "2022-03-10",
+    "rating": 9,
+    "notes": "Arcade-Modus mit allen Kämpfern beendet, Gon und Dr. Bosconovitch freigeschaltet."
+  },
+  {
+    "id": "c3d4e5f6-a7b8-4c9d-0e1f-23456789abcd",
+    "title": "RollerCoaster Tycoon",
+    "developer": "Chris Sawyer Productions",
+    "releaseYear": 1999,
+    "genres": [
+      "Wirtschaftssimulation",
+      "Strategie"
+    ],
+    "series": "RollerCoaster Tycoon",
+    "platform": "PC",
+    "distributionType": "DIGITAL",
+    "storefront": "GOG",
+    "condition": "NOT_APPLICABLE",
+    "status": "PLAYING",
+    "completionDate": null,
+    "rating": 9,
+    "notes": "Klassiker. Aktuell am Park 'Diamond Heights'."
+  }
+]
