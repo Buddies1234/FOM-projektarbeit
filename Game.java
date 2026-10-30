@@ -1,10 +1,9 @@
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 // Enums für Auswahllisten
-// Evtl. können wir hier dann ne Adminoverfläche bauen, um noch weitere Typen zu definieren...
-
 enum Platform {
     PC,
     PLAYSTATION_5,
@@ -53,6 +52,7 @@ enum PlayStatus {
 
 // Hauptklasse für ein Spiel
 public class Game {
+    private String id;
     private String title;
     private String developer;
     private int releaseYear;
@@ -70,8 +70,9 @@ public class Game {
     private String notes;
     private String coverImagePath;
 
-    // Standard-Konstruktor
+    // Standard-Konstruktor erzeugt direkt eine eindeutige ID
     public Game() {
+        this.id = UUID.randomUUID().toString();
         this.genres = new ArrayList<>();
     }
 
@@ -89,7 +90,11 @@ public class Game {
         this.storefront = Storefront.NONE;
     }
 
-    // Getter und Setter
+    // Getter und Setter für die ID
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    // Übrige Getter und Setter
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
