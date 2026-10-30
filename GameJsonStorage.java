@@ -1,6 +1,8 @@
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -14,8 +16,8 @@ public class GameJsonStorage {
 
     public void save(List<Game> games) throws IOException {
         File parentDir = storageFile.getParentFile();
-        if (parentDir != null && !parentDir.exists()) {
-            parentDir.mkdirs();
+        if (parentDir != null) {
+            Files.createDirectories(parentDir.toPath());
         }
 
         StringBuilder sb = new StringBuilder();
@@ -30,11 +32,11 @@ public class GameJsonStorage {
             appendNumber(sb, "releaseYear", g.getReleaseYear());
             appendStringList(sb, "genres", g.getGenres());
             appendField(sb, "series", g.getSeries(), true);
-            appendField(sb, "platform", g.getPlatform() != null ? g.getPlatform().name() : null, true);
-            appendField(sb, "distributionType", g.getDistributionType() != null ? g.getDistributionType().name() : null, true);
-            appendField(sb, "storefront", g.getStorefront() != null ? g.getStorefront().name() : null, true);
-            appendField(sb, "condition", g.getCondition() != null ? g.getCondition().name() : null, true);
-            appendField(sb, "status", g.getStatus() != null ? g.getStatus().name() : null, true);
+            appendField(sb, "platform", g.getPlatform(), true);
+            appendField(sb, "distributionType", g.getDistributionType(), true);
+            appendField(sb, "storefront", g.getStorefront(), true);
+            appendField(sb, "condition", g.getCondition(), true);
+            appendField(sb, "status", g.getStatus(), true);
             appendField(sb, "completionDate", g.getCompletionDate() != null ? g.getCompletionDate().toString() : null, true);
             appendNumber(sb, "rating", g.getRating());
             appendField(sb, "notes", g.getNotes(), false);
@@ -48,8 +50,18 @@ public class GameJsonStorage {
 
         sb.append("]");
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(storageFile, StandardCharsets.UTF_8))) {
-            writer.write(sb.toString());
+        File tempDirectory = parentDir == null ? new File(".") : parentDir;
+        File tempFile = File.createTempFile("spielebibliothek-", ".tmp", tempDirectory);
+        try {
+            Files.writeString(tempFile.toPath(), sb.toString(), StandardCharsets.UTF_8);
+            try {
+                Files.move(tempFile.toPath(), storageFile.toPath(),
+                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(tempFile.toPath(), storageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(tempFile.toPath());
         }
     }
 
@@ -92,19 +104,19 @@ public class GameJsonStorage {
                 g.setRating(Integer.parseInt(map.get("rating")));
             }
             if (map.get("platform") != null) {
-                g.setPlatform(Platform.valueOf(map.get("platform")));
+                g.setPlatform(map.get("platform"));
             }
             if (map.get("distributionType") != null) {
-                g.setDistributionType(DistributionType.valueOf(map.get("distributionType")));
+                g.setDistributionType(map.get("distributionType"));
             }
             if (map.get("storefront") != null) {
-                g.setStorefront(Storefront.valueOf(map.get("storefront")));
+                g.setStorefront(map.get("storefront"));
             }
             if (map.get("condition") != null) {
-                g.setCondition(Condition.valueOf(map.get("condition")));
+                g.setCondition(map.get("condition"));
             }
             if (map.get("status") != null) {
-                g.setStatus(PlayStatus.valueOf(map.get("status")));
+                g.setStatus(map.get("status"));
             }
             if (map.get("completionDate") != null) {
                 g.setCompletionDate(LocalDate.parse(map.get("completionDate")));
@@ -172,11 +184,44 @@ public class GameJsonStorage {
         throw new IOException("Nicht geschlossenes JSON-Array für '" + key + "'.");
     }
 
-    private String unescapeJson(String value) {
-        return value.replace("\\\"", "\"")
-                .replace("\\n", "\n")
-                .replace("\\r", "\r")
-                .replace("\\\\", "\\");
+    private String unescapeJson(String value) throws IOException {
+        StringBuilder unescaped = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char current = value.charAt(i);
+            if (current != '\\') {
+                unescaped.append(current);
+                continue;
+            }
+            if (++i >= value.length()) {
+                throw new IOException("Unvollständige Escape-Sequenz im JSON-Text.");
+            }
+
+            char escaped = value.charAt(i);
+            switch (escaped) {
+                case '"': unescaped.append('"'); break;
+                case '\\': unescaped.append('\\'); break;
+                case '/': unescaped.append('/'); break;
+                case 'b': unescaped.append('\b'); break;
+                case 'f': unescaped.append('\f'); break;
+                case 'n': unescaped.append('\n'); break;
+                case 'r': unescaped.append('\r'); break;
+                case 't': unescaped.append('\t'); break;
+                case 'u':
+                    if (i + 4 >= value.length()) {
+                        throw new IOException("Unvollständige Unicode-Escape-Sequenz im JSON-Text.");
+                    }
+                    try {
+                        unescaped.append((char) Integer.parseInt(value.substring(i + 1, i + 5), 16));
+                    } catch (NumberFormatException e) {
+                        throw new IOException("Ungültige Unicode-Escape-Sequenz im JSON-Text.", e);
+                    }
+                    i += 4;
+                    break;
+                default:
+                    throw new IOException("Ungültige Escape-Sequenz im JSON-Text.");
+            }
+        }
+        return unescaped.toString();
     }
 
     private void appendField(StringBuilder sb, String key, String value, boolean trailingComma) {
@@ -206,13 +251,34 @@ public class GameJsonStorage {
     }
 
     private String escapeJson(String s) {
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
+        StringBuilder escaped = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char current = s.charAt(i);
+            switch (current) {
+                case '"': escaped.append("\\\""); break;
+                case '\\': escaped.append("\\\\"); break;
+                case '\b': escaped.append("\\b"); break;
+                case '\f': escaped.append("\\f"); break;
+                case '\n': escaped.append("\\n"); break;
+                case '\r': escaped.append("\\r"); break;
+                case '\t': escaped.append("\\t"); break;
+                default:
+                    if (current < 0x20) {
+                        escaped.append("\\u");
+                        String hex = Integer.toHexString(current);
+                        for (int padding = hex.length(); padding < 4; padding++) {
+                            escaped.append('0');
+                        }
+                        escaped.append(hex);
+                    } else {
+                        escaped.append(current);
+                    }
+            }
+        }
+        return escaped.toString();
     }
 
-    private Map<String, String> parseJsonObject(String block) {
+    private Map<String, String> parseJsonObject(String block) throws IOException {
         Map<String, String> map = new HashMap<>();
         String[] lines = block.split("\n");
 
@@ -233,10 +299,7 @@ public class GameJsonStorage {
                 String inner = val.substring(1, val.length() - 1).replace("\"", "").trim();
                 map.put(key, inner);
             } else if (val.startsWith("\"") && val.endsWith("\"")) {
-                String str = val.substring(1, val.length() - 1)
-                        .replace("\\\"", "\"")
-                        .replace("\\n", "\n")
-                        .replace("\\\\", "\\");
+                String str = unescapeJson(val.substring(1, val.length() - 1));
                 map.put(key, str);
             } else {
                 map.put(key, val);

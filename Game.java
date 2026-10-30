@@ -3,53 +3,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-// Enums für Auswahllisten
-enum Platform {
-    PC,
-    PLAYSTATION_5,
-    PLAYSTATION_4,
-    PLAYSTATION_3,
-    PLAYSTATION_RETRO,
-    NINTENDO_SWITCH,
-    NINTENDO_RETRO,
-    XBOX_SERIES,
-    XBOX_ONE,
-    XBOX_RETRO,
-    OTHER 
-} // admin mode wo man mehr einfügen kann
-
-enum DistributionType {
-    PHYSICAL,
-    DIGITAL
-}
-
-enum Storefront {
-    NONE,
-    STEAM,
-    GOG,
-    EPIC_GAMES,
-    PLAYSTATION_NETWORK,
-    NINTENDO_ESHOP,
-    XBOX_STORE,
-    OTHER
-}
-
-enum Condition {
-    NEW_SEALED,         // Neu / OVP
-    COMPLETE_IN_BOX,    // Sehr gut (mit Hülle & Anleitung)
-    GOOD,               // Normale Gebrauchsspuren
-    LOOSE,              // Nur Modul/Disc
-    NOT_APPLICABLE      // Für Digital
-}
-
-enum PlayStatus {
-    UNPLAYED,           // Noch nicht gespielt
-    PLAYING,            // Aktuell dran
-    BEATEN,             // Durchgespielt (Story)
-    COMPLETED_100,      // 100% / Alle Erfolge
-    DROPPED             // Abgebrochen
-}
-
 // Hauptklasse für ein Spiel
 public class Game {
     private String id;
@@ -59,16 +12,15 @@ public class Game {
     private List<String> genres;
     private String series;
 
-    private Platform platform;
-    private DistributionType distributionType;
-    private Storefront storefront;
+    private String platform;
+    private String distributionType;
+    private String storefront;
 
-    private Condition condition;
-    private PlayStatus status;
+    private String condition;
+    private String status;
     private LocalDate completionDate;
     private int rating;
     private String notes;
-    private String coverImagePath;
 
     // Standard-Konstruktor erzeugt direkt eine eindeutige ID
     public Game() {
@@ -77,17 +29,15 @@ public class Game {
     }
 
     // Komfort-Konstruktor
-    public Game(String title, Platform platform, DistributionType distributionType, int releaseYear) {
+    public Game(String title, String platform, String distributionType, int releaseYear) {
         this();
         this.title = title;
         this.platform = platform;
         this.distributionType = distributionType;
         this.releaseYear = releaseYear;
-        this.status = PlayStatus.UNPLAYED;
-        this.condition = (distributionType == DistributionType.DIGITAL) 
-                         ? Condition.NOT_APPLICABLE 
-                         : Condition.GOOD;
-        this.storefront = Storefront.NONE;
+        this.status = "UNPLAYED";
+        this.condition = "DIGITAL".equals(distributionType) ? "NOT_APPLICABLE" : "GOOD";
+        this.storefront = "NONE";
     }
 
     // Getter und Setter für die ID
@@ -110,20 +60,20 @@ public class Game {
     public String getSeries() { return series; }
     public void setSeries(String series) { this.series = series; }
 
-    public Platform getPlatform() { return platform; }
-    public void setPlatform(Platform platform) { this.platform = platform; }
+    public String getPlatform() { return platform; }
+    public void setPlatform(String platform) { this.platform = platform; }
 
-    public DistributionType getDistributionType() { return distributionType; }
-    public void setDistributionType(DistributionType distributionType) { this.distributionType = distributionType; }
+    public String getDistributionType() { return distributionType; }
+    public void setDistributionType(String distributionType) { this.distributionType = distributionType; }
 
-    public Storefront getStorefront() { return storefront; }
-    public void setStorefront(Storefront storefront) { this.storefront = storefront; }
+    public String getStorefront() { return storefront; }
+    public void setStorefront(String storefront) { this.storefront = storefront; }
 
-    public Condition getCondition() { return condition; }
-    public void setCondition(Condition condition) { this.condition = condition; }
+    public String getCondition() { return condition; }
+    public void setCondition(String condition) { this.condition = condition; }
 
-    public PlayStatus getStatus() { return status; }
-    public void setStatus(PlayStatus status) { this.status = status; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public LocalDate getCompletionDate() { return completionDate; }
     public void setCompletionDate(LocalDate completionDate) { this.completionDate = completionDate; }
@@ -133,7 +83,4 @@ public class Game {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
-
-    public String getCoverImagePath() { return coverImagePath; }
-    public void setCoverImagePath(String coverImagePath) { this.coverImagePath = coverImagePath; }
 }
