@@ -1,49 +1,63 @@
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
-// Erstmal stumpf zwei spiele als Demo anlegen und als json speichern
+//erzeugt jetzt nichts mehr, sondern liest die bestehende spielebibliothek ein
 public class Main {
     public static void main(String[] args) {
-        GameJsonStorage storage = new GameJsonStorage("spielebibliothek.json");
+        String filePath = "spielebibliothek.json";
+        File file = new File(filePath);
 
-        // 1. Liste vorbereiten
-        List<Game> myGames = new ArrayList<>();
+        // Prüfen, ob die Datei überhaupt existiert
+        if (!file.exists()) {
+            System.out.println("Die Datei '" + filePath + "' wurde nicht gefunden!");
+            System.out.println("Stelle sicher, dass sie im Projektordner liegt.");
+            return;
+        }
 
-        // Spiel 1: Physisch auf Konsole
-        Game witcher = new Game("The Witcher 3: Wild Hunt", Platform.PLAYSTATION_4, DistributionType.PHYSICAL, 2015);
-        witcher.setDeveloper("CD Projekt Red");
-        witcher.setCondition(Condition.COMPLETE_IN_BOX);
-        witcher.setStatus(PlayStatus.COMPLETED_100);
-        witcher.setCompletionDate(LocalDate.of(2021, 5, 14));
-        witcher.setRating(10);
-        witcher.setGenres(List.of("RPG", "Open World"));
-        witcher.setNotes("Platin-Trophäe geholt. Grandioses DLC Blood and Wine.");
-        myGames.add(witcher);
+        GameJsonStorage storage = new GameJsonStorage(filePath);
 
-        // Spiel 2: Digital auf PC
-        Game baldur = new Game("Baldur's Gate 3", Platform.PC, DistributionType.DIGITAL, 2023);
-        baldur.setDeveloper("Larian Studios");
-        baldur.setStorefront(Storefront.STEAM);
-        baldur.setStatus(PlayStatus.PLAYING);
-        baldur.setRating(9);
-        baldur.setGenres(List.of("CRPG", "Turn-Based"));
-        baldur.setNotes("Akt 3 erreicht mit Paladin-Build.");
-        myGames.add(baldur);
-
-        // 2. In Datei speichern
         try {
-            storage.save(myGames);
-            System.out.println("Spiele erfolgreich in 'spielebibliothek.json' gespeichert!\n");
+            // Spiele aus der JSON-Datei laden
+            List<Game> games = storage.load();
 
-            // 3. Aus Datei wieder laden
-            List<Game> loadedGames = storage.load();
-            System.out.println("Geladene Spiele (" + loadedGames.size() + "):");
-            for (Game g : loadedGames) {
-                System.out.println("- " + g.getTitle() + " [" + g.getPlatform() + "] | Status: " + g.getStatus());
+            if (games.isEmpty()) {
+                System.out.println("Die Bibliothek ist leer (keine Spiele gefunden).");
+                return;
             }
 
-        } catch (Exception e) {
+            System.out.println("=== Spielebibliothek geladen (" + games.size() + " Einträge) ===");
+            System.out.println();
+
+            for (int i = 0; i < games.size(); i++) {
+                Game g = games.get(i);
+                System.out.println("[" + (i + 1) + "] " + g.getTitle() + " (" + g.getReleaseYear() + ")");
+                System.out.println("    ID:         " + g.getId());
+                System.out.println("    Entwickler: " + (g.getDeveloper() != null ? g.getDeveloper() : "-"));
+                System.out.println("    Plattform:  " + g.getPlatform() + " (" + g.getDistributionType() + ")");
+                
+                if (g.getDistributionType() == DistributionType.DIGITAL) {
+                    System.out.println("    Store:      " + g.getStorefront());
+                } else {
+                    System.out.println("    Zustand:    " + g.getCondition());
+                }
+
+                System.out.println("    Status:     " + g.getStatus());
+                if (g.getCompletionDate() != null) {
+                    System.out.println("    Beendet am: " + g.getCompletionDate());
+                }
+                System.out.println("    Bewertung:  " + (g.getRating() > 0 ? g.getRating() + "/10" : "Keine"));
+                if (g.getGenres() != null && !g.getGenres().isEmpty()) {
+                    System.out.println("    Genres:     " + String.join(", ", g.getGenres()));
+                }
+                if (g.getNotes() != null && !g.getNotes().isBlank()) {
+                    System.out.println("    Notizen:    " + g.getNotes());
+                }
+                System.out.println("--------------------------------------------------");
+            }
+
+        } catch (IOException e) {
+            System.err.println("Fehler beim Lesen der Datei: " + e.getMessage());
             e.printStackTrace();
         }
     }
