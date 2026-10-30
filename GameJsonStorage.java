@@ -4,8 +4,6 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.*;
 
-// Schreiben+Lesen der JSON Dateien.
-
 public class GameJsonStorage {
 
     private final File storageFile;
@@ -26,6 +24,7 @@ public class GameJsonStorage {
         for (int i = 0; i < games.size(); i++) {
             Game g = games.get(i);
             sb.append("  {\n");
+            appendField(sb, "id", g.getId(), true);
             appendField(sb, "title", g.getTitle(), true);
             appendField(sb, "developer", g.getDeveloper(), true);
             appendNumber(sb, "releaseYear", g.getReleaseYear());
@@ -75,6 +74,11 @@ public class GameJsonStorage {
         for (String raw : rawObjects) {
             Map<String, String> map = parseJsonObject(raw);
             Game g = new Game();
+
+            // Falls die Datei schon eine ID hat, diese übernehmen, sonst bleibt die neu generierte erhalten
+            if (map.get("id") != null && !map.get("id").isBlank()) {
+                g.setId(map.get("id"));
+            }
 
             g.setTitle(map.get("title"));
             g.setDeveloper(map.get("developer"));
