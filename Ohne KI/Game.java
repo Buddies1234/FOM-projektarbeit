@@ -3,11 +3,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+//Vertriebsart als ENUM, gibt nur Digital (Steam etc.) oder Physisch (Card,CD,DVD...)
 enum DistributionType {
     PHYSICAL,
     DIGITAL
 }
 
+// DatenModell der Spiele, Titel, Hersteller etc.
+// Zusätzlich eindeutige UUID
 public class Game {
     private String id;
     private String title;
@@ -24,6 +27,7 @@ public class Game {
     private int rating;
     private String notes;
 
+    // Erstellt eine neue Spieleinstanz
     public Game(String title, String platform, DistributionType distributionType, int releaseYear) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
@@ -34,12 +38,15 @@ public class Game {
         this.status = "UNPLAYED";
         this.storefront = "NONE";
 
+        // Digitale Spiele können keinen Zustaand haben
         if (distributionType == DistributionType.DIGITAL) {
             this.condition = "NOT_APPLICABLE";
         } else {
             this.condition = "GOOD";
         }
     }
+
+    // Getter und Setter
 
     public String getId() {
         return id;
@@ -153,6 +160,7 @@ public class Game {
         this.notes = notes;
     }
 
+    // An den Titel noch das Veröffentlichungsdatum anhängen
     @Override
     public String toString() {
         return title + " (" + releaseYear + ")";
