@@ -1,0 +1,17 @@
+Spieldaten - Felddefinition der Variante ohne KI
+
+- Spielname (title): Text, Pflichtfeld.
+- Plattform (platform): Freier Text, zum Beispiel PC oder eine konkrete Konsole.
+  "Digital" ist keine Plattform, sondern eine Vertriebsart.
+- Vertriebsart (distributionType): Enum mit den Werten PHYSICAL oder DIGITAL.
+- Erscheinungsjahr (releaseYear): Ganzzahl; 0 steht fuer "unbekannt".
+- Zustand (condition): Zustand des physischen Spiels; bei digitalen Spielen nicht zutreffend.
+- Herausgeber (publisher): Gewuenschtes optionales Textfeld. Im aktuellen Java-Datenmodell
+  noch nicht als eigenes Feld umgesetzt. Das vorhandene Feld developer bedeutet
+  Entwickler und ist nicht gleichbedeutend mit Herausgeber.
+- Erfolge und sonstige Notizen (notes): Optionaler Freitext, zum Beispiel erreichte
+  Erfolge oder "durchgespielt". Der Spielstatus wird separat gespeichert.
+
+Umsetzungshinweise:
+- Plattform wird als Text und die Vertriebsart als DistributionType-Enum gespeichert.
+- Das Abschlussdatum und der Spielstatus sind zusaetzliche Felder des Datenmodells.

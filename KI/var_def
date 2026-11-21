@@ -1,7 +1,48 @@
-- Name des Spiels
-- Konsole (welche?) / PC / Digital?
-- Erscheinungsjahr
-- Zustand
-- Herrausgeber
-- Erfolge als Notiz (Durchgespielt)
-- 
+Spieldaten - Variablen der KI-Version (Game.java)
+
+Grundtypen
+- id (String): Eindeutige UUID des Datensatzes. Wird beim Erzeugen eines Game-Objekts
+  automatisch gesetzt und bleibt beim Bearbeiten erhalten.
+- title (String): Spielname. Pflichtfeld; darf nach der Eingabepruefung nicht leer sein.
+- developer (String): Name des Entwicklers, optional. Das bedeutet Entwickler, nicht
+  Herausgeber.
+- releaseYear (int): Erscheinungsjahr als Ganzzahl. 0 bedeutet "unbekannt"; negative
+  Werte werden im Eingabedialog abgewiesen.
+- genres (List<String>): Liste von Genres. Im Dialog werden die Eintraege durch Kommas
+  getrennt eingegeben; leere Eintraege werden ignoriert.
+- series (String): Name einer Spielreihe, optional.
+- notes (String): Optionaler Freitext fuer Hinweise und Erfolge, zum Beispiel
+  "100 % erreicht" oder "durchgespielt".
+- rating (int): Bewertung von 0 bis 10. 0 bedeutet keine Bewertung; andere Werte
+  ausserhalb dieses Bereichs werden abgewiesen.
+- completionDate (LocalDate): Optionales Abschlussdatum. Die Eingabe erfolgt im
+  ISO-Format JJJJ-MM-TT; ohne Eingabe ist der Wert null.
+
+Kategorien
+- platform (String): ID einer Plattformkategorie, zum Beispiel PC oder PLAYSTATION_5.
+  Die ID wird gespeichert; in der Oberflaeche erscheint das zugehoerige Label.
+- distributionType (String): ID der Vertriebsart. Standardwerte sind PHYSICAL
+  (physisch) und DIGITAL (digital). Digital ist keine Plattform.
+- storefront (String): ID des Stores, zum Beispiel STEAM oder GOG. Relevant fuer
+  digitale Spiele; bei physischen Spielen wird NONE verwendet.
+- condition (String): ID des Zustands eines physischen Spiels, zum Beispiel GOOD
+  oder COMPLETE_IN_BOX. Bei digitalen Spielen wird NOT_APPLICABLE verwendet.
+- status (String): ID des Spielstatus, zum Beispiel UNPLAYED, PLAYING, BEATEN,
+  COMPLETED_100 oder DROPPED. Erfolge und Freitext bleiben davon getrennt in notes.
+
+Die Kategorien sind in GameCategories definiert und koennen verwaltet werden.
+Eine Kategorieoption besitzt eine stabile ID und ein sichtbares Label. Das Label kann
+umbenannt werden, ohne die in Game gespeicherte ID zu aendern.
+
+Initialwerte und Speicherung
+- Der parameterlose Konstruktor erzeugt eine UUID und eine leere Genre-Liste.
+- Der Konstruktor mit Titel, Plattform, Vertriebsart und Jahr setzt den Status auf
+  UNPLAYED, den Store auf NONE und den Zustand je nach Vertriebsart auf GOOD oder
+  NOT_APPLICABLE.
+- GameJsonStorage speichert die Spieldaten als UTF-8-JSON. Optionale Werte wie
+  completionDate koennen null sein.
+
+Abweichung zur urspruenglichen Feldliste
+- Herausgeber (publisher) ist im aktuellen Java-Datenmodell kein eigenes Feld.
+  Es wurde nicht mit developer gleichgesetzt, weil Entwickler und Herausgeber
+  unterschiedliche Angaben sein koennen.
